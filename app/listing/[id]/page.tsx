@@ -33,7 +33,7 @@ async function ListingPage({ params }: ListingPageProps) {
   }
 
   return (
-    <section className="flex-center wrapper min-h-screen w-full flex-col gap-8 pb-8 pt-24">
+    <section className="flex-center wrapper min-h-screen w-full flex-col gap-8 pb-8 pt-24 max-w-3xl mx-auto">
       <div className="flex w-full flex-col gap-8">
         <h1 className="h1-bold">{listing.title}</h1>
 
@@ -42,15 +42,15 @@ async function ListingPage({ params }: ListingPageProps) {
           alt={listing.title}
           width={800}
           height={600}
-          className="w-full h-auto object-cover"
+          className="w-full h-auto object-cover max-w-full"
         />
 
         {/* Listing details */}
         <div className="flex flex-col gap-5">
-          <p className="p-regular-20">{listing.description}</p>
           <div className="flex gap-4">
             <p className="p-medium-16">Price: ${listing.price}</p>
           </div>
+          <p className="p-regular-20">{listing.description}</p>
         </div>
       </div>
     </section>
