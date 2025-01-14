@@ -1,29 +1,9 @@
-"use client";
-
-import { useState, useEffect } from "react";
 import Link from "next/link";
-import { createClient } from "@supabase/supabase-js";
-import { Listing } from "./types";
+import { createClient } from "@/utils/supabase/server";
 
-// Create a single supabase client for interacting with your database
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
-
-export default function Home() {
-  const [isLoggedIn] = useState(false);
-  const userInitials = "JD"; // Example initials, replace with actual user data
-
-  const [listings, setListings] = useState<Listing[]>([]);
-
-  useEffect(() => {
-    const fetchListings = async () => {
-      const { data, error } = await supabase.from("listings").select("*");
-      setListings(data || []);
-    };
-    fetchListings();
-  }, []);
+export default async function Home() {
+  const supabase = await createClient();
+  const { data: listings } = await supabase.from("listings").select();
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
@@ -35,21 +15,25 @@ export default function Home() {
           <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
             Sell
           </button>
-          {isLoggedIn ? (
+          {/* TODO: Add profile indicator when user logged in */}
+          {/* {isLoggedIn ? (
             <div className="bg-gray-700 text-white font-bold py-2 px-4 rounded-full">
               {userInitials}
             </div>
-          ) : (
-            <button className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
-              Login
-            </button>
-          )}
+          ) : ( */}
+          <button className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+            Login
+          </button>
+          {/* )} */}
         </div>
       </nav>
       <main className="p-8">
-        {listings.map((listing) => (
-          <div key={listing.id}>{listing.title}</div>
-        ))}
+        {listings &&
+          listings.map((listing) => (
+            <Link key={listing.id} href={`/listing/${listing.id}`}>
+              <div>{listing.title}</div>
+            </Link>
+          ))}
       </main>
     </div>
   );
