@@ -1,4 +1,5 @@
 import { createClient } from "@/utils/supabase/server";
+import Image from "next/image";
 
 // Define page props interface
 interface ListingPageProps {
@@ -15,7 +16,7 @@ async function ListingPage({ params }: ListingPageProps) {
   // Fetch listing details using the ID
   const { data: listing } = await supabase
     .from("listings")
-    .select("id, title, description, price")
+    .select("id, title, description, price, image_url")
     .eq("id", id)
     .single();
 
@@ -35,6 +36,14 @@ async function ListingPage({ params }: ListingPageProps) {
     <section className="flex-center wrapper min-h-screen w-full flex-col gap-8 pb-8 pt-24">
       <div className="flex w-full flex-col gap-8">
         <h1 className="h1-bold">{listing.title}</h1>
+
+        <Image
+          src={listing.image_url}
+          alt={listing.title}
+          width={800}
+          height={600}
+          className="w-full h-auto object-cover"
+        />
 
         {/* Listing details */}
         <div className="flex flex-col gap-5">
