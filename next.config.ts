@@ -1,7 +1,14 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  images: {
+    domains: [
+      // TODO: Upload all seed images to Supabase and only whitelist Supabase URL
+      "www.artificial-intelligence.store",
+      "i.etsystatic.com",
+      "www.teez.in",
+    ],
+  },
 };
 
 export default nextConfig;
