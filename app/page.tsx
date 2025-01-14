@@ -6,8 +6,8 @@ export default async function Home() {
   const { data: listings } = await supabase.from("listings").select();
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white">
-      <main className="p-8">
+    <div className="min-h-screen bg-gray-900 text-white flex justify-center">
+      <main className="p-8 flex flex-col items-center gap-4">
         {listings &&
           listings.map((listing) => (
             <Link key={listing.id} href={`/listing/${listing.id}`}>
