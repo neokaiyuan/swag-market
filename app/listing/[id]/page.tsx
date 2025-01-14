@@ -33,20 +33,19 @@ async function ListingPage({ params }: ListingPageProps) {
   }
 
   return (
-    <section className="flex-center wrapper min-h-screen w-full flex-col gap-8 pb-8 pt-24 max-w-3xl mx-auto">
-      <div className="flex w-full flex-col gap-8">
-        <h1 className="h1-bold">{listing.title}</h1>
-
-        <Image
-          src={listing.image_url}
-          alt={listing.title}
-          width={800}
-          height={600}
-          className="w-full h-auto object-cover max-w-full"
-        />
-
-        {/* Listing details */}
-        <div className="flex flex-col gap-5">
+    <section className="flex-center wrapper min-h-screen w-full flex-col gap-8 pb-8 pt-24 max-w-lg mx-auto">
+      <div className="flex w-full flex-col md:flex-row gap-8">
+        <div className="md:w-1/2">
+          <Image
+            src={listing.image_url}
+            alt={listing.title}
+            width={800}
+            height={600}
+            className="w-full h-auto object-cover max-w-full max-h-[500px]"
+          />
+        </div>
+        <div className="flex flex-col gap-5 md:w-1/2">
+          <h1 className="text-3xl font-bold">{listing.title}</h1>
           <div className="flex gap-4">
             <p className="p-medium-16">Price: ${listing.price}</p>
           </div>
