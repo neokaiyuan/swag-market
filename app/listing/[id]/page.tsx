@@ -9,12 +9,14 @@ interface ListingPageProps {
 
 // Create async page component
 async function ListingPage({ params }: ListingPageProps) {
+  const { id } = await params;
+
   const supabase = await createClient();
   // Fetch listing details using the ID
   const { data: listing } = await supabase
     .from("listings")
-    .select("id, title, description, price, location")
-    .eq("id", params.id)
+    .select("id, title, description, price")
+    .eq("id", id)
     .single();
 
   // Handle case where listing is not found
@@ -39,7 +41,6 @@ async function ListingPage({ params }: ListingPageProps) {
           <p className="p-regular-20">{listing.description}</p>
           <div className="flex gap-4">
             <p className="p-medium-16">Price: ${listing.price}</p>
-            <p className="p-medium-16">Location: {listing.location}</p>
           </div>
         </div>
       </div>
