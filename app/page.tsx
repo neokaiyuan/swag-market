@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { createClient } from "@supabase/supabase-js";
+import { Listing } from "./types";
 
 // Create a single supabase client for interacting with your database
 const supabase = createClient(
@@ -13,6 +14,16 @@ const supabase = createClient(
 export default function Home() {
   const [isLoggedIn] = useState(false);
   const userInitials = "JD"; // Example initials, replace with actual user data
+
+  const [listings, setListings] = useState<Listing[]>([]);
+
+  useEffect(() => {
+    const fetchListings = async () => {
+      const { data, error } = await supabase.from("listings").select("*");
+      setListings(data || []);
+    };
+    fetchListings();
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
@@ -35,7 +46,11 @@ export default function Home() {
           )}
         </div>
       </nav>
-      <main className="p-8">{/* List of items will be displayed here */}</main>
+      <main className="p-8">
+        {listings.map((listing) => (
+          <div key={listing.id}>{listing.title}</div>
+        ))}
+      </main>
     </div>
   );
 }
