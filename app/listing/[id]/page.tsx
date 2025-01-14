@@ -43,6 +43,9 @@ async function ListingPage({ params }: ListingPageProps) {
             height={600}
             className="w-full h-auto object-cover max-w-full max-h-[500px]"
           />
+          <button className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+            Buy
+          </button>
         </div>
         <div className="flex flex-col gap-5 md:w-1/2">
           <h1 className="text-3xl font-bold">{listing.title}</h1>
