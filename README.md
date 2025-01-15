@@ -1,36 +1,82 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Swag Market
 
-## Getting Started
+E-commerce-inspired marketplace for sellers to list items and buyers to 'buy' them. Used to teach authentication and reinforce relational database concepts.
 
-First, run the development server:
+Deployed at: [swagmarket.vercel.app](https://swagmarket.vercel.app)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## How To Use App
+
+The home page is the marketplace. Click a listing to view its details.
+
+After logging in, click Buy on a listing page to 'buy' it, or click Sell in the navbar to create a new listing.
+
+When creating a new listing, use AI to generate a description for the listing after uploading a product photo.
+
+## How To Run App Locally
+
+### Set Up Environment Variables
+
+1. Copy `.env.example` to new file `.env.local`. Env vars in `.env.local` will only be available server-side unless otherwise specified. `.env.local` is ignored by Git via `.gitignore`.
+2. Replace Supabase and OpenAI secrets in `.env.local` with yours. If you do not have them, create them at Supabase's and OpenAI's platforms.
+
+### Set Up Supabase Database
+
+Once you have a Supabase project and have stored its URL and Anon Key in `.env.local`, use the following schema to set up database tables. These instructions will change once we add migrations to this repo, which we have not yet.
+
+```sql
+create table
+  public.user_profiles (
+    id uuid not null default gen_random_uuid (),
+    created_at timestamp with time zone not null default now(),
+    first_name character varying null,
+    last_name character varying null,
+    constraint user_profiles_pkey primary key (id),
+    constraint user_profiles_id_fkey foreign key (id) references auth.users (id) on update cascade on delete cascade
+  ) tablespace pg_default;
+
+create table
+  public.listings (
+    id uuid not null default gen_random_uuid (),
+    created_at timestamp with time zone not null default now(),
+    title character varying not null,
+    description text null,
+    price numeric not null,
+    image_url character varying null,
+    buyer_id uuid null,
+    seller_id uuid null,
+    constraint listings_pkey primary key (id),
+    constraint listings_buyer_id_fkey foreign key (buyer_id) references user_profiles (id),
+    constraint listings_seller_id_fkey foreign key (seller_id) references user_profiles (id)
+  ) tablespace pg_default;
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Once the tables are created, run the following command in the Supabase SQL Editor to prompt Supabase to create a new `user_profile` every time a new auth user is created. In this setup, `user_profiles` references `auth.users` from Supabase Auth. This script should also be part of version control, and added together with migrations.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```sql
+-- inserts a row into public.user_profiles
+create function public.handle_new_user()
+returns trigger
+language plpgsql
+security definer set search_path = ''
+as $$
+begin
+  insert into public.user_profiles (id)
+  values (new.id);
+  return new;
+end;
+$$;
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+-- trigger the function every time a user is created
+create trigger on_auth_user_created
+  after insert on auth.users
+  for each row execute procedure public.handle_new_user();
+```
 
-## Learn More
+### Start Server
 
-To learn more about Next.js, take a look at the following resources:
+```zsh
+npm i # Install dependencies
+npm run dev # Start server
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Open [http://localhost:3000](http://localhost:3000) in a browser to view the app.
