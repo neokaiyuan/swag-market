@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { createClient } from "@/utils/supabase/server";
+import SellButton from "./SellButton";
 
 const Navbar = async () => {
   const supabase = await createClient();
-
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -15,9 +15,7 @@ const Navbar = async () => {
           OpenAI Swag Market
         </Link>
         <div className="flex gap-4">
-          <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-            Sell
-          </button>
+          <SellButton />
           {user ? (
             <span
               className="bg-white text-gray-800 font-bold rounded-full flex items-center justify-center"

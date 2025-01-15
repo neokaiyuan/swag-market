@@ -30,6 +30,7 @@ const BuyButton = ({ listingId, isSoldInDb }: BuyButtonProps) => {
     if (error) {
       console.error("Error updating listing:", error);
     } else {
+      alert("Successful purchase!");
       setIsSold(true);
     }
   }
