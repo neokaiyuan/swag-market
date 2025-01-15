@@ -1,5 +1,6 @@
 import { createClient } from "@/utils/supabase/server";
 import Image from "next/image";
+import BuyButton from "./BuyButton";
 
 // Define page props interface
 interface ListingPageProps {
@@ -12,15 +13,14 @@ interface ListingPageProps {
 async function ListingPage({ params }: ListingPageProps) {
   const { id } = await params;
 
-  const supabase = await createClient();
   // Fetch listing details using the ID
+  const supabase = await createClient();
   const { data: listing } = await supabase
     .from("listings")
     .select("id, title, description, price, image_url")
     .eq("id", id)
     .single();
 
-  // Handle case where listing is not found
   if (!listing) {
     return (
       <div className="flex-center wrapper min-h-screen w-full flex-col gap-4">
@@ -43,9 +43,7 @@ async function ListingPage({ params }: ListingPageProps) {
             height={600}
             className="w-full h-auto object-cover max-w-full max-h-[500px]"
           />
-          <button className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
-            Buy
-          </button>
+          <BuyButton listingId={listing.id} />
         </div>
         <div className="flex flex-col gap-5 md:w-1/2">
           <h1 className="text-3xl font-bold">{listing.title}</h1>
@@ -58,5 +56,4 @@ async function ListingPage({ params }: ListingPageProps) {
     </section>
   );
 }
-
 export default ListingPage;
