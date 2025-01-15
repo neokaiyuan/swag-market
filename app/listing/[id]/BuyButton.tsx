@@ -1,13 +1,16 @@
 "use client";
 
+import { useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 
 interface BuyButtonProps {
   listingId: string;
-  isSold: boolean;
+  isSoldInDb: boolean;
 }
 
-const BuyButton = ({ listingId, isSold }: BuyButtonProps) => {
+const BuyButton = ({ listingId, isSoldInDb }: BuyButtonProps) => {
+  const [isSold, setIsSold] = useState(isSoldInDb);
+
   async function handleBuy(listingId: string) {
     const supabase = createClient();
     const {
@@ -27,7 +30,7 @@ const BuyButton = ({ listingId, isSold }: BuyButtonProps) => {
     if (error) {
       console.error("Error updating listing:", error);
     } else {
-      alert("Purchase successful!");
+      setIsSold(true);
     }
   }
 

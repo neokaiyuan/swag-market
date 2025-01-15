@@ -32,7 +32,7 @@ async function ListingPage({ params }: ListingPageProps) {
     );
   }
 
-  const isSold = listing.buyer_id !== null;
+  const isSoldInDb = listing.buyer_id !== null;
 
   return (
     <section className="flex-center wrapper min-h-screen w-full flex-col gap-8 pb-8 pt-24 max-w-lg mx-auto">
@@ -45,7 +45,7 @@ async function ListingPage({ params }: ListingPageProps) {
             height={600}
             className="w-full h-auto object-cover max-w-full max-h-[500px]"
           />
-          <BuyButton listingId={listing.id} isSold={isSold} />
+          <BuyButton listingId={listing.id} isSoldInDb={isSoldInDb} />
         </div>
         <div className="flex flex-col gap-5 md:w-1/2">
           <h1 className="text-3xl font-bold">{listing.title}</h1>
