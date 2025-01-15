@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 
@@ -11,6 +12,7 @@ const SellPage = () => {
   const [image, setImage] = useState<File | null>(null);
   const [imageName, setImageName] = useState("");
   const [isGeneratingDescription, setIsGeneratingDescription] = useState(false);
+  const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
 
   const router = useRouter();
 
@@ -156,12 +158,23 @@ const SellPage = () => {
           type="file"
           onChange={(e) => {
             if (e.target.files && e.target.files[0]) {
-              setImage(e.target.files[0]);
-              setImageName(e.target.files[0].name);
+              const selectedImage = e.target.files[0];
+              setImage(selectedImage);
+              setImageName(selectedImage.name);
+              setImagePreviewUrl(URL.createObjectURL(selectedImage));
             }
           }}
           className="w-full p-2 border border-gray-300 rounded text-black"
         />
+        {imagePreviewUrl && (
+          <Image
+            src={imagePreviewUrl}
+            alt="Image Preview"
+            width={500}
+            height={500}
+            className="mt-2 w-full h-auto max-h-64 object-contain border border-gray-300 rounded"
+          />
+        )}
         {imageName && (
           <div className="flex items-center justify-between">
             <p className="text-white mr-2">Selected file: {imageName}</p>
