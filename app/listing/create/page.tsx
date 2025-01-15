@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 
-const SellPage = () => {
+const CreateListingPage = () => {
   const [title, setTitle] = useState("");
   const [price, setPrice] = useState("");
   const [description, setDescription] = useState("");
@@ -234,4 +234,4 @@ const SellPage = () => {
   );
 };
 
-export default SellPage;
+export default CreateListingPage;
