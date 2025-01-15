@@ -52,7 +52,16 @@ async function ListingPage({ params }: ListingPageProps) {
           <div className="flex gap-4">
             <p className="p-medium-16">Price: ${listing.price}</p>
           </div>
-          <p className="p-regular-20">{listing.description}</p>
+          <p className="p-regular-20">
+            {listing.description
+              .split("\n")
+              .map((line: string, index: number) => (
+                <span key={index}>
+                  {line}
+                  <br />
+                </span>
+              ))}
+          </p>
         </div>
       </div>
     </section>

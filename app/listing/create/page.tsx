@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 
@@ -10,8 +10,84 @@ const SellPage = () => {
   const [description, setDescription] = useState("");
   const [image, setImage] = useState<File | null>(null);
   const [imageName, setImageName] = useState("");
+  const [isGeneratingDescription, setIsGeneratingDescription] = useState(false);
 
   const router = useRouter();
+
+  const descriptionRef = useRef<HTMLTextAreaElement | null>(null);
+
+  useEffect(() => {
+    if (descriptionRef.current) {
+      descriptionRef.current.scrollTop = descriptionRef.current.scrollHeight;
+    }
+  }, [description]);
+
+  // Fetch description of current image from OpenAI
+  const generateDescription = async () => {
+    setIsGeneratingDescription(true);
+    try {
+      if (!image) {
+        throw new Error("No image selected");
+      }
+
+      // Convert image to Base64 using a Promise
+      const base64Image = await new Promise<string>((resolve, reject) => {
+        const fileReader = new FileReader();
+        fileReader.readAsDataURL(image as Blob);
+        fileReader.onload = () => {
+          if (fileReader.result && typeof fileReader.result === "string") {
+            resolve(fileReader.result.split(",")[1]);
+          } else {
+            reject("Failed to convert image to Base64");
+          }
+        };
+        fileReader.onerror = (error) => {
+          reject(error);
+        };
+      });
+
+      // Send the image to the API to get a description
+      const response = await fetch("/api/image-to-description", {
+        method: "POST",
+        body: JSON.stringify({
+          base64Image,
+        }),
+      });
+
+      if (!response.body) {
+        throw new Error("Did not receive ReadableStream from API");
+      }
+
+      const streamReader = response.body.getReader();
+      const decoder = new TextDecoder("utf-8");
+      let description = "";
+
+      // Decode the response stream and save it in local state
+      while (true) {
+        const { done, value } = await streamReader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value, { stream: true });
+
+        // Extract the relevant text content from the chunk
+        const textContent = chunk
+          .split("\n") // Each chunk can have multiple lines
+          .filter((line) => line.startsWith("0")) // 0 means model response text
+          // Remove leading 0:" and trailing " characters, and replace \n with actual newline character
+          .map((line) => line.slice(3, -1).replaceAll("\\n", "\n"))
+          .join("");
+
+        description += textContent;
+
+        // Update the history with the new description chunk
+        setDescription(description);
+      }
+    } catch (error) {
+      console.error("Failed to fetch description:", error);
+    } finally {
+      setIsGeneratingDescription(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -41,13 +117,10 @@ const SellPage = () => {
         console.error("Error uploading file:", error.message);
         return;
       } else {
-        console.log("File uploaded successfully:", filePath);
-
         // Retrieve image URL
         const { data } = supabase.storage
           .from("swag-market")
           .getPublicUrl(filePath);
-        console.log("Public URL:", data.publicUrl);
         imageUrl = data.publicUrl;
       }
     }
@@ -89,7 +162,25 @@ const SellPage = () => {
           }}
           className="w-full p-2 border border-gray-300 rounded text-black"
         />
-        {imageName && <p className="text-white">Selected file: {imageName}</p>}
+        {imageName && (
+          <div className="flex items-center justify-between">
+            <p className="text-white mr-2">Selected file: {imageName}</p>
+            <button
+              type="button"
+              onClick={generateDescription}
+              className={`bg-green-500 text-white font-bold py-1 px-2 rounded ${
+                isGeneratingDescription
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "hover:bg-green-700"
+              }`}
+              disabled={isGeneratingDescription}
+            >
+              {isGeneratingDescription
+                ? "Generating..."
+                : "Generate Description"}
+            </button>
+          </div>
+        )}
         <label className="block text-lg font-medium text-white">Title</label>
         <input
           type="text"
@@ -112,10 +203,11 @@ const SellPage = () => {
           Description
         </label>
         <textarea
+          ref={descriptionRef}
           placeholder="The iconic and soft OpenAI logo plushie, now in a limited-edition dark theme!"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          className="w-full p-2 border border-gray-300 rounded text-black"
+          className="w-full p-2 border border-gray-300 rounded text-black overflow-auto"
           required
         />
         <button
