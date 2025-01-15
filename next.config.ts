@@ -7,6 +7,7 @@ const nextConfig: NextConfig = {
       "www.artificial-intelligence.store",
       "i.etsystatic.com",
       "www.teez.in",
+      "tbmfwqpucvrzldtooihp.supabase.co",
     ],
   },
 };

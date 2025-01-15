@@ -8,7 +8,8 @@ const SellPage = () => {
   const [title, setTitle] = useState("");
   const [price, setPrice] = useState("");
   const [description, setDescription] = useState("");
-  const [image, setImage] = useState(null);
+  const [image, setImage] = useState<File | null>(null);
+  const [imageName, setImageName] = useState("");
 
   const router = useRouter();
 
@@ -24,13 +25,41 @@ const SellPage = () => {
       return;
     }
 
+    // Upload image to Supabase and retrieve image URL
+    let imageUrl = null;
+    if (image) {
+      const fileExt = image.name.split(".").pop();
+      const fileName = `${Date.now()}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      // Upload image
+      const { error } = await supabase.storage
+        .from("swag-market")
+        .upload(filePath, image);
+
+      if (error) {
+        console.error("Error uploading file:", error.message);
+        return;
+      } else {
+        console.log("File uploaded successfully:", filePath);
+
+        // Retrieve image URL
+        const { data } = supabase.storage
+          .from("swag-market")
+          .getPublicUrl(filePath);
+        console.log("Public URL:", data.publicUrl);
+        imageUrl = data.publicUrl;
+      }
+    }
+
+    // Save listing
     const { data, error } = await supabase
       .from("listings")
       .insert({
         title,
         price,
         description,
-        // image,
+        image_url: imageUrl,
         seller_id: authUser.id,
       })
       .select("id");
@@ -47,12 +76,20 @@ const SellPage = () => {
     <div className="max-w-md mx-auto mt-10">
       <h1 className="text-2xl font-bold mb-4">Create a New Listing</h1>
       <form onSubmit={handleSubmit} className="space-y-4">
-        <label className="block text-lg font-medium text-white">Image</label>
+        <label className="block text-lg font-medium text-white">
+          Product Image
+        </label>
         <input
           type="file"
-          onChange={(e) => setImage(e.target.files[0])}
+          onChange={(e) => {
+            if (e.target.files && e.target.files[0]) {
+              setImage(e.target.files[0]);
+              setImageName(e.target.files[0].name);
+            }
+          }}
           className="w-full p-2 border border-gray-300 rounded text-black"
         />
+        {imageName && <p className="text-white">Selected file: {imageName}</p>}
         <label className="block text-lg font-medium text-white">Title</label>
         <input
           type="text"
