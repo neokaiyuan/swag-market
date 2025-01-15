@@ -17,7 +17,7 @@ async function ListingPage({ params }: ListingPageProps) {
   const supabase = await createClient();
   const { data: listing } = await supabase
     .from("listings")
-    .select("id, title, description, price, image_url")
+    .select("id, title, description, price, image_url, buyer_id")
     .eq("id", id)
     .single();
 
@@ -32,6 +32,8 @@ async function ListingPage({ params }: ListingPageProps) {
     );
   }
 
+  const isSold = listing.buyer_id !== null;
+
   return (
     <section className="flex-center wrapper min-h-screen w-full flex-col gap-8 pb-8 pt-24 max-w-lg mx-auto">
       <div className="flex w-full flex-col md:flex-row gap-8">
@@ -43,7 +45,7 @@ async function ListingPage({ params }: ListingPageProps) {
             height={600}
             className="w-full h-auto object-cover max-w-full max-h-[500px]"
           />
-          <BuyButton listingId={listing.id} />
+          <BuyButton listingId={listing.id} isSold={isSold} />
         </div>
         <div className="flex flex-col gap-5 md:w-1/2">
           <h1 className="text-3xl font-bold">{listing.title}</h1>

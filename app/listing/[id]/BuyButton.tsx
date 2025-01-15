@@ -4,9 +4,10 @@ import { createClient } from "@/utils/supabase/client";
 
 interface BuyButtonProps {
   listingId: string;
+  isSold: boolean;
 }
 
-const BuyButton = ({ listingId }: BuyButtonProps) => {
+const BuyButton = ({ listingId, isSold }: BuyButtonProps) => {
   async function handleBuy(listingId: string) {
     const supabase = createClient();
     const {
@@ -32,10 +33,15 @@ const BuyButton = ({ listingId }: BuyButtonProps) => {
 
   return (
     <button
-      className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+      className={`mt-4 px-4 py-2 rounded text-white ${
+        isSold
+          ? "bg-gray-500 cursor-not-allowed"
+          : "bg-blue-500 hover:bg-blue-600"
+      }`}
       onClick={() => handleBuy(listingId)}
+      disabled={isSold}
     >
-      Buy
+      {isSold ? "Sold" : "Buy"}
     </button>
   );
 };
