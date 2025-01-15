@@ -4,9 +4,9 @@ import BuyButton from "./BuyButton";
 
 // Define page props interface
 interface ListingPageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 // Create async page component
