@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 
 const SellPage = () => {
@@ -8,6 +9,8 @@ const SellPage = () => {
   const [price, setPrice] = useState("");
   const [description, setDescription] = useState("");
   const [image, setImage] = useState(null);
+
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -36,7 +39,7 @@ const SellPage = () => {
       console.error("Error creating listing:", error);
     } else {
       alert("Listing created successfully!");
-      window.location.href = `/listing/${data[0].id}`;
+      router.push(`/listing/${data[0].id}`);
     }
   };
 

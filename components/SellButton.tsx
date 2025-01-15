@@ -1,8 +1,11 @@
 "use client";
 
 import { createClient } from "@/utils/supabase/client";
+import { useRouter } from "next/navigation";
 
 const SellButton = () => {
+  const router = useRouter();
+
   const handleClick = async () => {
     const supabase = await createClient();
     const {
@@ -12,7 +15,7 @@ const SellButton = () => {
     if (!authUser) {
       alert("Please log in first to sell an item.");
     } else {
-      window.location.href = "/listing/create";
+      router.push("/listing/create");
     }
   };
 
